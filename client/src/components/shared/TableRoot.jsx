@@ -4,27 +4,59 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 
 import { columns, initialRows, gridOptions } from '../../configs/gridConfig';
+import { evaluateFormula } from '../../utils/evaluateFormula';
+import { useEffect } from 'react';
 
 const ExcelLikeGrid = ({
 	setSelectedCell,
 	gridRef,
 	onCellFocused,
 	isDarkTheme,
+	setFunctionValue,
+	selectedCell,
 }) => {
 	const [rowData, setRowData] = useState(initialRows);
 	const [clipboardData, setClipboardData] = useState(null);
+	const [startCell, setStartCell] = useState(null);
 
-	// Обработчик изменения данных
 	const onCellValueChanged = useCallback(
 		(params) => {
 			const newRowData = [...rowData];
 			const rowIndex = params.rowIndex;
 			const field = params.column.colId;
-			newRowData[rowIndex][field] = params.newValue;
+			let newValue = params.newValue;
+
+			if (typeof newValue === 'string' && newValue.startsWith('=')) {
+				newValue = evaluateFormula(newValue.substring(1), params.api);
+			}
+
+			console.log('newValue', newValue);
+			console.log(newRowData[rowIndex][field]);
+
+			newRowData[rowIndex][field] = newValue;
+			console.log(newRowData[rowIndex][field]);
+			setFunctionValue(newValue);
 			setRowData(newRowData);
+
+			// Обновляем зависимые ячейки
+			updateDependentCells(params.api, field, rowIndex);
 		},
 		[rowData]
 	);
+
+	const updateDependentCells = useCallback((api, changedColumn, changedRow) => {
+		api.forEachNode((rowNode) => {
+			Object.keys(rowNode.data).forEach((field) => {
+				const cellValue = rowNode.data[field];
+				if (typeof cellValue === 'string' && cellValue.startsWith('=')) {
+					const updatedValue = evaluateFormula(cellValue.substring(1), api);
+					if (updatedValue !== cellValue) {
+						rowNode.setDataValue(field, updatedValue);
+					}
+				}
+			});
+		});
+	}, []);
 
 	// Обработчик выделения диапазона ячеек
 	const onRangeSelectionChanged = useCallback((params) => {
@@ -134,12 +166,44 @@ const ExcelLikeGrid = ({
 		[copySelectedCells, pasteToSelectedCells]
 	);
 
+	const onCellMouseDown = (params) => {
+		if (!params.column || !params.column.colId) {
+			console.warn('Invalid params in onCellMouseDown:', params);
+			return;
+		}
+		setStartCell(params);
+	};
+
+	const onCellMouseUp = (params) => {
+		if (!startCell || !params.column || !params.column.colId) {
+			console.warn('Invalid params in onCellMouseUp:', params);
+			return;
+		}
+
+		if (params.column.getId() === startCell.column.getId()) {
+			const startRowIndex = Math.min(startCell.rowIndex, params.rowIndex);
+			const endRowIndex = Math.max(startCell.rowIndex, params.rowIndex);
+
+			const updatedRowData = [...rowData];
+			for (let i = startRowIndex; i <= endRowIndex; i++) {
+				updatedRowData[i][params.column.colId] = startCell.value;
+			}
+
+			setRowData(updatedRowData);
+		}
+		setStartCell(null);
+	};
+
+	useEffect(() => {
+		console.log('rowData', JSON.stringify(rowData));
+	}, []);
+
 	return (
 		<div
 			onKeyDown={onKeyDown}
 			tabIndex='0'
 			className={isDarkTheme ? 'ag-theme-quartz-dark' : 'ag-theme-quartz'}
-			style={{ height: '70.7vh', width: '100%', borderRadius: '0px' }}
+			style={{ height: '70.7vh', width: '100%' }}
 		>
 			<AgGridReact
 				ref={gridRef}
@@ -152,6 +216,8 @@ const ExcelLikeGrid = ({
 				suppressCopyRowsToClipboard={true}
 				suppressCopySingleCellRanges={true}
 				onRangeSelectionChanged={onRangeSelectionChanged}
+				onCellMouseDown={onCellMouseDown}
+				onCellMouseUp={onCellMouseUp}
 				getRowId={(params) => params.data.id}
 			/>
 		</div>

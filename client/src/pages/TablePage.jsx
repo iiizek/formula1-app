@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 
 import {
 	Card,
@@ -54,10 +55,13 @@ const TablePage = ({ isDarkTheme }) => {
 		<Card className='flex flex-col justify-between h-[80.5vh]'>
 			<CardHeader>
 				<div className='flex justify-between items-center gap-4'>
-					<ChevronLeft
-						size={42}
-						className='hover:opacity-75 text-primary transition-all cursor-pointer'
-					/>
+					<Link to={'/'}>
+						<ChevronLeft
+							size={42}
+							className='hover:opacity-75 text-primary transition-all cursor-pointer'
+						/>
+					</Link>
+
 					<div>
 						<CardTitle>Таблица 1</CardTitle>
 						<CardDescription>Создана: 29.01.2005 12:00</CardDescription>
@@ -75,8 +79,10 @@ const TablePage = ({ isDarkTheme }) => {
 
 			<CardContent className='flex-1 p-0'>
 				<TableRoot
+					setFunctionValue={setFunctionValue}
 					isDarkTheme={isDarkTheme}
 					gridRef={gridRef}
+					selectedCell={selectedCell}
 					setSelectedCell={setSelectedCell}
 					onCellFocused={onCellFocused}
 				/>

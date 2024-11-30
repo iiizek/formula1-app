@@ -2,6 +2,7 @@ import { useRef, useEffect } from 'react';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { FunctionSquareIcon } from 'lucide-react';
+import { evaluateFormula } from '../../utils/evaluateFormula';
 
 const FunctionPanel = ({
 	selectedCell,
@@ -39,15 +40,9 @@ const FunctionPanel = ({
 			const api = gridRef.current.api;
 			const rowNode = api.getDisplayedRowAtIndex(row);
 			if (rowNode) {
-				// Если значение начинается с '=', обрабатываем как формулу
 				if (newValue.startsWith('=')) {
-					try {
-						const result = eval(newValue.substring(1));
-						rowNode.setDataValue(column, result);
-					} catch (error) {
-						rowNode.setDataValue(column, newValue);
-						console.log(error);
-					}
+					const result = evaluateFormula(newValue.substring(1), api);
+					rowNode.setDataValue(column, result);
 				} else {
 					rowNode.setDataValue(column, newValue);
 				}
