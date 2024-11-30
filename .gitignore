@@ -1,1 +1,3 @@
+.gitignore
 client/node_modules
+__pycache__/

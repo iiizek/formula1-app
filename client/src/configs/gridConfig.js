@@ -1,3 +1,5 @@
+import { AG_GRID_LOCALE_RU } from './locale.ru';
+
 function genCharArray(charA, charZ) {
 	var a = [],
 		i = charA.charCodeAt(0),
@@ -57,4 +59,5 @@ export const gridOptions = {
 	enableRangeSelection: true,
 	copyHeadersToClipboard: false,
 	enableCellChangeFlash: true,
+	localeText: AG_GRID_LOCALE_RU,
 };
