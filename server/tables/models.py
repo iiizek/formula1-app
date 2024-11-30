@@ -12,7 +12,7 @@ class Table(models.Model):
 class Cell(models.Model):
     table = models.ForeignKey(Table, on_delete=models.CASCADE, related_name='cells')
     row = models.CharField(max_length=50)
-    column = models.BigIntegerField()
+    column = models.CharField(max_length=50)
     value = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField()
     changed_at = models.DateTimeField(auto_now=True)
