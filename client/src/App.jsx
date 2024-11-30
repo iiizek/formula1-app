@@ -9,6 +9,8 @@ import { Card } from './components/ui/card';
 import { FileSpreadsheetIcon } from 'lucide-react';
 import { Moon } from 'lucide-react';
 
+import 'ag-grid-enterprise';
+
 function App() {
 	const [isDarkTheme, setIsDarkTheme] = useState(() => {
 		const storedTheme = localStorage.getItem('theme');
@@ -46,7 +48,10 @@ function App() {
 			</Card>
 			<Routes>
 				<Route path='/' element={<MainPage />} />
-				<Route path='/tables/:tableId' element={<TablePage />} />
+				<Route
+					path='/tables'
+					element={<TablePage isDarkTheme={isDarkTheme} />}
+				/>
 			</Routes>
 		</div>
 	);
