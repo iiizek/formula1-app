@@ -49,7 +49,7 @@ function App() {
 			<Routes>
 				<Route path='/' element={<MainPage />} />
 				<Route
-					path='/tables'
+					path='/tables/:tableId'
 					element={<TablePage isDarkTheme={isDarkTheme} />}
 				/>
 			</Routes>
