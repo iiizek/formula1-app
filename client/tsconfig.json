@@ -1,15 +1,5 @@
 {
-	"files": [],
-	"references": [
-		{
-			"path": "./tsconfig.app.json"
-		}
-	],
 	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"]
-		},
 		"target": "ES2020", // Целевая версия JavaScript
 		"module": "ESNext", // Используемый модульный формат
 		"lib": ["DOM", "DOM.Iterable", "ES2020"], // Библиотеки, доступные в проекте
@@ -20,6 +10,17 @@
 		"forceConsistentCasingInFileNames": true, // Консистентность регистров в путях
 		"allowSyntheticDefaultImports": true, // Позволяет использовать дефолтный импорт
 		"resolveJsonModule": true, // Импорт JSON как модулей
-		"isolatedModules": true // Обработка каждого файла как отдельного модуля
-	}
+		"isolatedModules": true, // Обработка каждого файла как отдельного модуля
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["./src/*"]
+		}
+	},
+	"exclude": ["node_modules", "dist"],
+	"include": ["src"],
+	"references": [
+		{
+			"path": "./tsconfig.app.json"
+		}
+	]
 }

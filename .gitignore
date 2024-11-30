@@ -1,3 +1,5 @@
+.gitignore
 client/node_modules
 server/server/__pycache__
 server/tables/__pycache__
+server/tables/migrations/__pycache__
