@@ -1,9 +1,12 @@
 {
+	"extends": "./tsconfig.json",
 	"compilerOptions": {
+		"outDir": "./dist", // Каталог для выходных файлов
+		"rootDir": "./src", // Корневой каталог исходников
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		}
 	},
-	"extends": "./tsconfig.json"
+	"include": ["src/**/*"]
 }
