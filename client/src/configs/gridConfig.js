@@ -42,7 +42,6 @@ export const columns = [
 	})),
 ];
 
-// Создаем начальные данные (13 строк)
 export const initialRows = Array.from({ length: 101 }, (_, index) => {
 	const row = { id: index + 1 };
 	columns.forEach((col) => {

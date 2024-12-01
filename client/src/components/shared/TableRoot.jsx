@@ -68,6 +68,35 @@ const ExcelLikeGrid = ({
 		setRowData(rows);
 	};
 
+	const updateCellInDatabase = async (row, column, value) => {
+		try {
+			const response = await fetch(
+				'http://localhost:8000/ruxel/api/v1/cells/create/',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						table_id: tableId,
+						row: row.toString(),
+						column: column.toString(),
+						value: value.toString(),
+					}),
+				}
+			);
+
+			if (!response.ok) {
+				throw new Error('Failed to update cell in database');
+			}
+
+			const result = await response.json();
+			console.log('Cell updated in database:', result);
+		} catch (error) {
+			console.error('Error updating cell in database:', error);
+		}
+	};
+
 	const onCellValueChanged = useCallback(
 		(params) => {
 			const newRowData = [...rowData];
@@ -83,6 +112,9 @@ const ExcelLikeGrid = ({
 			setRowData(newRowData);
 
 			updateDependentCells(params.api, field, rowIndex);
+
+			const columnIndex = field.charCodeAt(0) - 64; // Преобразуем букву в число (A=1, B=2, ...)
+			updateCellInDatabase(rowIndex + 1, columnIndex, newValue);
 		},
 		[rowData]
 	);
@@ -95,6 +127,13 @@ const ExcelLikeGrid = ({
 					const updatedValue = evaluateFormula(cellValue.substring(1), api);
 					if (updatedValue !== cellValue) {
 						rowNode.setDataValue(field, updatedValue);
+						// Обновляем зависимую ячейку в базе данных
+						const columnIndex = field.charCodeAt(0) - 64;
+						updateCellInDatabase(
+							rowNode.rowIndex + 1,
+							columnIndex,
+							updatedValue
+						);
 					}
 				}
 			});
