@@ -5,12 +5,12 @@ import { Separator } from '../ui/separator';
 
 const TableCard = ({ name, createdAt, updatedAt }) => {
 	return (
-		<Card className='flex justify-between items-center gap-4 p-2'>
-			<h2 className='ml-4 text-xl'>Таблица 1</h2>
+		<Card className='flex justify-between items-center gap-4 hover:bg-muted p-2 transition-all'>
+			<h2 className='ml-4 text-xl'>{name}</h2>
 
 			<div className='flex justify-between items-center gap-4'>
-				<span>Создана: 29.01.2005 12:00</span>
-				<span>Изменена: 29.01.2005 12:00</span>
+				<span>Создана: {createdAt}</span>
+				<span>Изменена: {updatedAt}</span>
 
 				<Separator className='h-10' orientation='vertical' />
 

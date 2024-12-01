@@ -2,8 +2,10 @@ import { useState, useCallback } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-import { columns, initialRows, gridOptions } from '../../configs/gridConfig';
+import { columns, gridOptions } from '../../configs/gridConfig';
 import { evaluateFormula } from '../../utils/evaluateFormula';
 import { useEffect } from 'react';
 
@@ -15,9 +17,56 @@ const ExcelLikeGrid = ({
 	setFunctionValue,
 	selectedCell,
 }) => {
-	const [rowData, setRowData] = useState(initialRows);
+	const { tableId } = useParams(null);
+
+	const [rowData, setRowData] = useState();
 	const [clipboardData, setClipboardData] = useState(null);
 	const [startCell, setStartCell] = useState(null);
+
+	useEffect(() => {
+		const getCellsForTable = async () => {
+			try {
+				const { data } = await axios.get(
+					`http://localhost:8000/ruxel/api/v1/tables/${tableId}/cells/?format=json`
+				);
+
+				return data;
+			} catch (err) {
+				console.log(err);
+			}
+		};
+
+		const data = getCellsForTable();
+
+		data.then((data) => {
+			initializeGrid(data);
+		});
+	}, []);
+
+	const initializeGrid = (data) => {
+		const rows = Array.from({ length: 101 }, (_, rowIndex) => {
+			const rowObj = { id: rowIndex + 1 };
+			columns.forEach((col) => {
+				rowObj[col.field] = '';
+			});
+			return rowObj;
+		});
+
+		data.forEach((item) => {
+			const rowIndex = parseInt(item.row) - 1;
+			const colField = String.fromCharCode(65 + parseInt(item.column) - 1);
+			if (
+				rowIndex >= 0 &&
+				rowIndex < 101 &&
+				colField >= 'A' &&
+				colField <= 'Z'
+			) {
+				rows[rowIndex][colField] = item.value;
+			}
+		});
+
+		setRowData(rows);
+	};
 
 	const onCellValueChanged = useCallback(
 		(params) => {
@@ -30,15 +79,9 @@ const ExcelLikeGrid = ({
 				newValue = evaluateFormula(newValue.substring(1), params.api);
 			}
 
-			console.log('newValue', newValue);
-			console.log(newRowData[rowIndex][field]);
-
 			newRowData[rowIndex][field] = newValue;
-			console.log(newRowData[rowIndex][field]);
-			setFunctionValue(newValue);
 			setRowData(newRowData);
 
-			// Обновляем зависимые ячейки
 			updateDependentCells(params.api, field, rowIndex);
 		},
 		[rowData]

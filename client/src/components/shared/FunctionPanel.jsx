@@ -3,6 +3,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { FunctionSquareIcon } from 'lucide-react';
 import { evaluateFormula } from '../../utils/evaluateFormula';
+import FormulasList from './FormulasList';
 
 const FunctionPanel = ({
 	selectedCell,
@@ -68,7 +69,7 @@ const FunctionPanel = ({
 					</span>
 				</div>
 			</div>
-			<Button>Все функции</Button>
+			<FormulasList />
 		</div>
 	);
 };

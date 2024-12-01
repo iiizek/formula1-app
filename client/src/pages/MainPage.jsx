@@ -19,8 +19,9 @@ const MainPage = () => {
 		const getAllTables = async () => {
 			try {
 				const response = await axios.get(
-					'http://localhost:8000/ruxel/api/v1/tables'
+					'http://localhost:8000/ruxel/api/v1/tables/?format=json'
 				);
+				console.log(response.data);
 				setTables(response.data);
 			} catch (error) {
 				console.error(error);
@@ -46,8 +47,9 @@ const MainPage = () => {
 					<Link to={`/tables/${table.id}`} key={table.id}>
 						<TableCard
 							name={table.name}
-							createdAt={table.created_at}
-							updatedAt={table.updated_at}
+							//correct date in format DD.MM.YYYY HH:MM:SS
+							createdAt={new Date(table.created_at).toLocaleString('ru-RU')}
+							updatedAt={new Date(table.changed_at).toLocaleString('ru-RU')}
 						/>
 					</Link>
 				))}
