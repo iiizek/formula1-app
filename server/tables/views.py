@@ -1,9 +1,11 @@
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from django.utils.timezone import now
 
 from .models import Table, Cell, Formula
 from .serializers import TableSerializer, CellSerializer, FormulaSerializer
+
 
 
 # Работа с запросами в таблице
@@ -369,7 +371,7 @@ def createCell(request):
     except Table.DoesNotExist:
         return Response({'error': 'Table not found'}, status=404)
 
-    # Используем update_or_create для обновления или создания ячейки
+    # Используем update_or_create для обновления или создания записи
     cell, created = Cell.objects.update_or_create(
         table=table,
         row=row,
@@ -377,9 +379,10 @@ def createCell(request):
         defaults={'value': value}
     )
 
+
     serializer = CellSerializer(cell)
     response_data = serializer.data
-    response_data['created'] = created  # Указываем, была ли ячейка создана или обновлена
+    response_data['created'] = created  # Указывает, была ли запись создана
     return Response(response_data)
 
 
