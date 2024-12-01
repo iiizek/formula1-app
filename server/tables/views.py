@@ -360,24 +360,27 @@ def createCell(request):
     row = request.data.get('row')
     column = request.data.get('column')
     value = request.data.get('value')
-    
+
     if not all([table_id, row, column, value]):
-        return Response({'error': 'Value is required'}, status=400)
-    
+        return Response({'error': 'All fields (table_id, row, column, value) are required'}, status=400)
+
     try:
         table = Table.objects.get(id=table_id)
     except Table.DoesNotExist:
         return Response({'error': 'Table not found'}, status=404)
-    
-    cell = Cell.objects.create(
-        table = table,
-        row = row,
-        column = column,
-        value = value
+
+    # Используем update_or_create для обновления или создания ячейки
+    cell, created = Cell.objects.update_or_create(
+        table=table,
+        row=row,
+        column=column,
+        defaults={'value': value}
     )
-    
+
     serializer = CellSerializer(cell)
-    return Response(serializer.data)
+    response_data = serializer.data
+    response_data['created'] = created  # Указываем, была ли ячейка создана или обновлена
+    return Response(response_data)
 
 
 @api_view(['GET'])
